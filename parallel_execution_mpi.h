@@ -713,12 +713,16 @@ void parallel_execution_native::map(
 
   auto aux;
 
-  //May the non-zero ranked processes have problems opening the file as it may have not been created yet.
+  //May the non-zero ranked processes have problems opening the file as it may have not been created yet (DOUBLE 'IF' IMPLEMENTED SOLUTION).
   if (rank == 0) {
   //What should we do if the output file already exists? Where should be the file created?
   	MPI_File_open(MPI_COMM_WORLD, 'Fileoutput', MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &fhout);
   }
-  else {
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  if (rank != 0) {
+
   	MPI_File_open(MPI_COMM_WORLD, 'Fileoutput', MPI_MODE_WRONLY, MPI_INFO_NULL, &fhout);
   }
 
