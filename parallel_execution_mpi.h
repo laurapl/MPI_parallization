@@ -696,7 +696,7 @@ void parallel_execution_native::map(
 
   //Donde esta transform_op y fileinput
   //Apañar esto para argc y argv
-  MPI_Init(&sequence_size);
+  MPI_Init('ARGUMENTS');
 
   MPI_File fh, fhout;
 
@@ -709,10 +709,11 @@ void parallel_execution_native::map(
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,	&rank);	
 
-  MPI_File_seek(fh,	rank*chunk_size, MPI_SEEK_SET);
+  MPI_File_seek(fh, rank*chunk_size, MPI_SEEK_SET);
 
   auto aux;
 
+  //May the non-zero ranked processes have problems opening the file as it may have not been created yet.
   if (rank == 0) {
   //What should we do if the output file already exists? Where should be the file created?
   	MPI_File_open(MPI_COMM_WORLD, 'Fileoutput', MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &fhout);
@@ -736,6 +737,7 @@ void parallel_execution_native::map(
   	//Write in the final buffer.
   	MPI_File_write(fhout, aux, 1, MPI_Datatype datatype, MPI_STATUS_IGNORE);
   }
+  MPI_Barrier(MPI_COMM_WORLD);
   MPI_File_close(&fh);
   MPI_File_close(&fhout);
 
